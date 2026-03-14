@@ -1,0 +1,170 @@
+/* QuizArena - Global Styles */
+
+:root {
+  --primary: #6c5ce7;
+  --accent: #00cec9;
+  --warning: #fdcb6e;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+/* Background */
+body {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  min-height: 100vh;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  color: #fff;
+}
+
+/* Navbar */
+.glass-header {
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  border-radius: 10px;
+}
+
+.form-control::placeholder { color: rgba(255, 255, 255, 0.4); }
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.4) !important;
+  border-color: var(--primary) !important;
+}
+
+.form-select option { background: #302b63; color: #fff; }
+.form-label { color: rgba(255, 255, 255, 0.85); font-weight: 500; }
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  border: none;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(108, 92, 231, 0.5); }
+
+.btn-outline-light {
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-success { border-radius: 12px; }
+.btn-danger  { border-radius: 12px; }
+.btn-info    { border-radius: 12px; }
+.btn-warning { border-radius: 12px; }
+
+/* Quiz Option Buttons */
+.quiz-option {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 16px;
+  transition: all 0.15s ease;
+  min-height: 70px;
+}
+
+.quiz-option:hover:not(:disabled) {
+  background: rgba(108, 92, 231, 0.35);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+}
+
+.quiz-option.selected {
+  border-color: var(--primary);
+  background: rgba(108, 92, 231, 0.3);
+}
+
+.quiz-option.btn-success {
+  background: rgba(0, 184, 148, 0.35) !important;
+  border-color: #00b894 !important;
+  color: #fff !important;
+}
+
+.quiz-option.btn-danger {
+  background: rgba(214, 48, 49, 0.35) !important;
+  border-color: #d63031 !important;
+  color: #fff !important;
+}
+
+.quiz-option.btn-secondary {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.quiz-option:disabled { cursor: not-allowed; }
+
+/* Timer Circle */
+.timer-circle {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.25);
+  transition: color 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* Title highlight */
+.title-highlight {
+  background: linear-gradient(135deg, #6c5ce7, #00cec9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Alerts */
+.alert-danger { background: rgba(214, 48, 49, 0.2); border-color: rgba(214, 48, 49, 0.4); color: #ff7675; }
+.alert-info   { background: rgba(0, 206, 201, 0.15); border-color: rgba(0, 206, 201, 0.3); color: #81ecec; }
+
+/* Badges */
+.badge { border-radius: 8px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+
+/* List group */
+.list-group-item {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Spinner colors */
+.spinner-grow.text-info { color: var(--accent) !important; }
+
+/* Responsive */
+@media (max-width: 576px) {
+  .glass-card { padding: 1.25rem; border-radius: 16px; }
+  .timer-circle { width: 52px; height: 52px; font-size: 1.1rem; }
+}

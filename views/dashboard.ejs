@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizArena - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="/css/style.css" rel="stylesheet">
+  <style>
+    .table-glass th { background:rgba(255,255,255,0.1);color:#fff;border:none; }
+    .table-glass td { color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.05); }
+  </style>
+</head>
+<body class="bg-gradient text-light min-vh-100">
+
+<nav class="navbar navbar-expand-lg navbar-dark glass-header mb-4">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/dashboard"><i class="bi bi-controller"></i> QuizArena Admin</a>
+    <div class="d-flex align-items-center">
+      <span class="me-3 text-light opacity-75">Welcome, <%= adminUsername %></span>
+      <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Your Quizzes</h2>
+    <a href="/create-quiz" class="btn btn-primary fw-bold"><i class="bi bi-plus-lg"></i> Create New Quiz</a>
+  </div>
+
+  <div class="glass-card p-4">
+    <% if (quizzes.length > 0) { %>
+      <div class="table-responsive">
+        <table class="table table-glass align-middle">
+          <thead>
+            <tr>
+              <th>Quiz Title</th><th>Code</th><th>Status</th><th>Questions</th><th>Participants</th><th>Created</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% quizzes.forEach(quiz => { %>
+              <% const status = (quiz.status || '').toLowerCase().trim(); %>
+              <tr>
+                <td class="fw-bold"><%= quiz.quiz_title %></td>
+                <td><span class="badge bg-secondary fs-6"><%= quiz.quiz_code %></span></td>
+                <td>
+                  <% if (status === 'live') { %>
+                    <span class="badge bg-success">Live</span>
+                  <% } else if (status === 'ended') { %>
+                    <span class="badge bg-danger">Finished</span>
+                  <% } else { %>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  <% } %>
+                </td>
+                <td><%= quiz.question_count %></td>
+                <td><%= quiz.participant_count %></td>
+                <td><%= new Date(quiz.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) %></td>
+                <td>
+                  <div class="btn-group">
+                    <% if (status === 'pending') { %>
+                      <button onclick="hostQuiz(<%= quiz.id %>)" class="btn btn-sm btn-success px-3">
+                        <i class="bi bi-play-fill"></i> Host
+                      </button>
+                    <% } else if (status === 'live') { %>
+                      <a href="/start-quiz/<%= quiz.id %>" class="btn btn-sm btn-outline-success px-3">
+                        <i class="bi bi-eye"></i> View Live
+                      </a>
+                    <% } else if (status === 'ended') { %>
+                      <a href="/export-pdf/<%= quiz.id %>" class="btn btn-sm btn-info text-white px-3">
+                        <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                      </a>
+                      <button onclick="rehostQuiz(<%= quiz.id %>)" class="btn btn-sm btn-warning ms-1 px-3">
+                        <i class="bi bi-arrow-clockwise"></i> Rehost
+                      </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="text-center py-5 opacity-75">
+        <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+        <p class="mb-0">No quizzes found. Create your first one!</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+async function hostQuiz(quizId) {
+  if (!confirm('Start this quiz? Participants will be able to join.')) return;
+  const fd = new FormData(); fd.append('id', quizId);
+  const r = await fetch('/api/host', { method: 'POST', body: fd });
+  const d = await r.json();
+  if (d.success) location.reload();
+  else alert('Error: ' + (d.error || 'Failed'));
+}
+async function rehostQuiz(quizId) {
+  if (!confirm('Rehost this quiz? All scores and participants will be cleared.')) return;
+  const fd = new FormData(); fd.append('id', quizId);
+  const r = await fetch('/api/rehost', { method: 'POST', body: fd });
+  const d = await r.json();
+  if (d.success) location.reload();
+  else alert('Error: ' + (d.error || 'Failed'));
+}
+</script>
+</body>
+</html>
