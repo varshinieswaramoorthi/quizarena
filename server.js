@@ -3,6 +3,12 @@ const session = require('express-session');
 const path = require('path');
 require('dotenv').config();
 
+// Ensure required ENV vars exist for production capability
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY || !process.env.SESSION_SECRET) {
+    console.error("FATAL ERROR: Missing required environment variables (SUPABASE_URL, SUPABASE_KEY, SESSION_SECRET). Server cannot start.");
+    process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -15,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'quizarena_secret_2026',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true
 }));
