@@ -1,17 +1,11 @@
 services:
   - type: web
-    name: quizarena
+    name: quizarena-node
     env: node
-    buildCommand: npm install
-    startCommand: node server.js
+    plan: free
+    autoDeploy: true
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_KEY
-        sync: false
-      - key: SESSION_SECRET
-        generateValue: true
-      - key: APP_URL
-        sync: false
+      - key: NODE_VERSION
+        value: "18.17.0"
+    buildCommand: "npm install"
+    startCommand: "npm start"

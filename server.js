@@ -1,48 +1,39 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-
-const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const quizRoutes = require('./routes/quiz');
-const apiRoutes = require('./routes/api');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Body parsers
+// Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Session
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'quizarena-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+    secret: 'quizarena_secret_2026',
+    resave: false,
+    saveUninitialized: true
 }));
 
 // Routes
-app.use('/', authRoutes);
-app.use('/', adminRoutes);
-app.use('/', quizRoutes);
-app.use('/api', apiRoutes);
+const authRoutes = require('./routes/auth');
 
-// 404
-app.use((req, res) => {
-  res.status(404).send('<h1>404 - Page Not Found</h1><a href="/">Go Home</a>');
+app.use('/', authRoutes);
+
+// Mock Dashboard Route (since logic was moved out of dashboard.php)
+app.get('/dashboard', (req, res) => {
+    if (!req.session.admin) {
+        return res.redirect('/login');
+    }
+    // You should fetch quizzes from Supabase here in a real implementation
+    res.render('dashboard', { admin: req.session.admin, quizzes: [] });
 });
 
-app.listen(PORT, () => {
-  console.log(`QuizArena running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
