@@ -6,107 +6,229 @@
     <title>QuizArena - Interactive Quiz Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #7c3aed;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+
         body, html {
-            height: 100%;
             margin: 0;
+            padding: 0;
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
+            background: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #4f46e5, #2563eb, #7c3aed);
+            background-size: 200% 200%;
+            animation: gradientMove 10s ease infinite;
+            min-height: 80vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            color: #fff;
+            padding: 20px;
             text-align: center;
+            position: relative;
         }
 
-        .hero-container {
-            max-width: 800px;
-            padding: 40px 20px;
-            animation: fadeIn 1s ease-in-out;
-            width: 100%;
-            box-sizing: border-box;
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        h1 {
-            font-size: 5rem;
+        .hero h1 {
+            font-size: 4rem;
             font-weight: 800;
-            margin-bottom: 20px;
-            margin-top: 0;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            margin: 0 0 10px 0;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideDown 0.8s ease-out;
         }
 
-        .title-highlight {
-            color: #00bcd4; /* Light Blue focus requested */
-        }
-
-        p {
+        .hero p {
             font-size: 1.5rem;
             font-weight: 300;
             margin-bottom: 40px;
-            color: rgba(255, 255, 255, 0.8);
+            opacity: 0.9;
+            animation: slideDown 1s ease-out;
         }
 
-        .buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+        /* Join Form Card */
+        .join-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: popIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--dark);
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
         }
 
-        .btn {
-            padding: 15px 40px;
+        .join-card input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .join-card input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .join-card button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
             font-size: 1.2rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+            font-family: inherit;
+        }
+
+        .join-card button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Admin Link Details */
+        .admin-link {
+            margin-top: 30px;
+            display: inline-block;
+            color: rgba(255,255,255,0.8);
+            font-weight: 600;
             text-decoration: none;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 25px;
             border-radius: 50px;
             transition: all 0.3s ease;
-            display: inline-block;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 1.5s ease-out;
         }
 
-        .btn-start {
-            background: linear-gradient(45deg, #007bff, #00bcd4);
+        .admin-link:hover {
+            background: rgba(255,255,255,0.1);
             color: #fff;
-            box-shadow: 0 8px 20px rgba(0, 188, 212, 0.4);
-            border: none;
+            border-color: #fff;
         }
 
-        .btn-start:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(0, 188, 212, 0.6);
+        /* Features Section */
+        .features {
+            padding: 80px 20px;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            position: relative;
         }
 
-        .btn-login {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
+        .feature-box {
+            max-width: 300px;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            background: var(--light);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
         }
 
-        .btn-login:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-3px);
+        .feature-box:hover {
+            transform: translateY(-10px);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+        .feature-box h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-box p {
+            color: #64748b;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 3.5rem; }
-            .buttons { flex-direction: column; }
-            .btn { width: 100%; box-sizing: border-box; }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Mobile Layout Mapping */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3rem; }
+            .hero p { font-size: 1.2rem; }
+            .join-card { padding: 30px; }
+            .features { gap: 20px; padding: 40px 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="hero-container">
-        <h1><span class="title-highlight">Quiz</span>Arena</h1>
-        <p>Join the arena. Test your knowledge. Claim victory.</p>
-        <div class="buttons">
-            <a href="/join" class="btn btn-start">Start Quiz</a>
-            <a href="/login" class="btn btn-login">Admin Login &rarr;</a>
+
+    <!-- Dynamic Hero -->
+    <section class="hero">
+        <h1>QuizArena</h1>
+        <p>Join Live Quiz Instantly</p>
+        
+        <div class="join-card">
+            <form action="/join" method="POST">
+                <input type="text" name="code" placeholder="ENTER QUIZ CODE" required autocomplete="off" maxlength="6" style="text-transform: uppercase;">
+                <input type="text" name="name" placeholder="Your Player Name" required autocomplete="off" maxlength="15">
+                <button type="submit">Join Game &rarr;</button>
+            </form>
         </div>
-    </div>
+
+        <a href="/login" class="admin-link">Admin / Teacher Login</a>
+    </section>
+
+    <!-- Marketing Features -->
+    <section class="features">
+        <div class="feature-box">
+            <h3>Blazing Fast</h3>
+            <p>Students jump straight into live quizzes utilizing a 6-digit code. Zero account setups required.</p>
+        </div>
+        <div class="feature-box">
+            <h3>Real-Time Sync</h3>
+            <p>Experience seamless WebSocket execution built securely upon modern Express environments.</p>
+        </div>
+        <div class="feature-box">
+            <h3>Teacher Controls</h3>
+            <p>Administrators govern leaderboards universally from a fully transparent, isolated command center.</p>
+        </div>
+    </section>
+
 </body>
 </html>
