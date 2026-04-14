@@ -28,17 +28,15 @@ app.use(session({
 
 // Routes
 const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
+const apiRoutes = require('./routes/api');
+const playerRoutes = require('./routes/player');
 
+// Attach specific operational controllers
 app.use('/', authRoutes);
-
-// Mock Dashboard Route (since logic was moved out of dashboard.php)
-app.get('/dashboard', (req, res) => {
-    if (!req.session.admin) {
-        return res.redirect('/login');
-    }
-    // You should fetch quizzes from Supabase here in a real implementation
-    res.render('dashboard', { admin: req.session.admin, quizzes: [] });
-});
+app.use('/', adminRoutes);
+app.use('/api', apiRoutes);
+app.use('/', playerRoutes);
 
 // Serve the Landing Page specifically on the root trajectory
 app.get('/', (req, res) => {

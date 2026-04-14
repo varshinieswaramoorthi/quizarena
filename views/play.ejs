@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playing - <%= quiz.title %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4f46e5; --secondary: #7c3aed; --dark: #0f172a; --light: #f1f5f9; --accent: #0ea5e9; }
+        body { margin:0; font-family: 'Poppins', sans-serif; background: var(--dark); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        .game-container { background: #1e293b; padding: 40px; border-radius: 20px; width: 90%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { margin-top: 0; font-size: 2rem; }
+        .score-board { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 600; font-size: 1.2rem; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .timer { font-size: 3rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+        .option-btn { background: var(--primary); border: none; padding: 20px; border-radius: 12px; color: #fff; font-size: 1.2rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: transform 0.2s; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-3px); filter: brightness(1.1); }
+        .option-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .option-btn.correct { background: #10b981 !important; transform: scale(1.05); }
+        .option-btn.incorrect { background: #ef4444 !important; opacity: 0.5; }
+        #loading { display: none; }
+        #question-box { display: none; }
+        #result-box { display: none; margin-top:20px; }
+        @media (max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="score-board">
+        <div>Player: <%= participant.name %></div>
+        <div>Score: <span id="player-score"><%= participant.score %></span></div>
+    </div>
+
+    <div id="lobby">
+        <h2>Waiting for questions...</h2>
+        <p>The quiz will begin momentarily.</p>
+        <button onclick="startQuiz()" style="padding: 10px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: inherit; font-size: 1.1rem; margin-top: 20px;">I'm Ready - Fetch Questions</button>
+    </div>
+
+    <div id="loading">
+        <h2>Loading Engine...</h2>
+    </div>
+
+    <div id="question-box">
+        <div class="timer" id="timer">30</div>
+        <h2 id="q-text">Question Text</h2>
+        <div class="options-grid" id="options"></div>
+    </div>
+
+    <div id="result-box">
+        <h2 id="result-msg"></h2>
+        <p>You earned <span id="earned-points">0</span> points!</p>
+        <button id="next-btn" onclick="nextQuestion()" style="padding: 10px 20px; background: var(--secondary); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: inherit; font-size: 1.1rem; margin-top: 20px;">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const participantId = '<%= participant.id %>';
+    const quizCode = '<%= quiz.code %>';
+    let questions = [];
+    let currentIndex = 0;
+    let timerInterval;
+    let currentScore = <%= participant.score %>;
+
+    async function startQuiz() {
+        document.getElementById('lobby').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        try {
+            const res = await fetch(`/api/quiz/${quizCode}/questions`);
+            if (!res.ok) throw new Error('Quiz not live or invalid');
+            questions = await res.json();
+            if (questions.length === 0) throw new Error('No questions available in this quiz.');
+            document.getElementById('loading').style.display = 'none';
+            renderQuestion();
+        } catch (err) {
+            alert(err.message);
+            window.location.href = '/';
+        }
+    }
+
+    function renderQuestion() {
+        if (currentIndex >= questions.length) {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('lobby').innerHTML = `<h2>Quiz Completed!</h2><p>Final Score: ${currentScore}</p><br><a href="/" style="color:#0ea5e9; text-decoration:none; font-weight:bold;">Return to Lobby</a>`;
+            document.getElementById('lobby').style.display = 'block';
+            return;
+        }
+
+        const q = questions[currentIndex];
+        document.getElementById('q-text').innerText = q.text;
+        
+        const optsContainer = document.getElementById('options');
+        optsContainer.innerHTML = '';
+        
+        const colors = ['#e11d48', '#2563eb', '#f59e0b', '#10b981'];
+        
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.style.background = colors[idx % colors.length];
+            btn.onclick = () => submitAnswer(idx, btn);
+            optsContainer.appendChild(btn);
+        });
+
+        document.getElementById('question-box').style.display = 'block';
+        document.getElementById('result-box').style.display = 'none';
+        startTimer(q.time_limit || 30);
+    }
+
+    function startTimer(seconds) {
+        let timeLeft = seconds;
+        document.getElementById('timer').innerText = timeLeft;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                submitAnswer(-1, null); // Time out drop execution
+            }
+        }, 1000);
+    }
+
+    async function submitAnswer(selectedIndex, clickedBtn) {
+        clearInterval(timerInterval);
+        const q = questions[currentIndex];
+        const timeRemaining = parseInt(document.getElementById('timer').innerText);
+        
+        // Disable all buttons immediately locally
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(b => b.disabled = true);
+
+        try {
+            const res = await fetch(`/api/quiz/${quizCode}/answer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    participantId,
+                    questionId: q.id,
+                    selectedIndex,
+                    timeRemaining
+                })
+            });
+            const result = await res.json();
+            
+            if (clickedBtn) {
+                if (result.isCorrect) clickedBtn.classList.add('correct');
+                else clickedBtn.classList.add('incorrect');
+            }
+            
+            if (!result.isCorrect && result.correctIndex !== undefined && btns[result.correctIndex]) {
+                btns[result.correctIndex].classList.add('correct');
+            }
+
+            currentScore += result.scoreAwarded;
+            document.getElementById('player-score').innerText = currentScore;
+            
+            setTimeout(() => {
+                document.getElementById('question-box').style.display = 'none';
+                document.getElementById('result-msg').innerText = result.isCorrect ? 'Correct!' : (selectedIndex === -1 ? 'Time\'s Up!' : 'Incorrect!');
+                document.getElementById('earned-points').innerText = result.scoreAwarded;
+                document.getElementById('result-box').style.display = 'block';
+            }, 1200);
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        renderQuestion();
+    }
+</script>
+
+</body>
+</html>
