@@ -13,28 +13,25 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Auto-create default admin if not exists
+// Auto-create and forcefully overwrite default admin to ensure clean bcrypt validations
 async function ensureDefaultAdmin() {
     try {
-        const { data, error } = await supabase
-            .from('admins')
-            .select('id')
-            .eq('username', 'admin')
-            .single();
+        console.log('Flushing existing admin profiles resolving hash conflicts...');
+        
+        // 1. Delete all broken legacy records matching the username
+        await supabase.from('admins').delete().eq('username', 'admin');
             
-        if (!data && error?.code === 'PGRST116') { // Correct error code for no rows returned
-            console.log('Admin user not found. Attempting to seed default admin...');
-            const hashedPassword = await bcrypt.hash('admin123', 10);
-            const { error: insertError } = await supabase.from('admins').insert([{
-                username: 'admin',
-                password: hashedPassword
-            }]);
-            if (insertError) throw insertError;
-            console.log('Default admin user created successfully.');
-        } else if (error && error.code !== 'PGRST116') {
-             console.error('Query error checking default admin:', error.message);
+        // 2. Safely reconstruct the Node.js compatible bcrypt user
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+        const { error: insertError } = await supabase.from('admins').insert([{
+            username: 'admin',
+            password: hashedPassword
+        }]);
+        
+        if (insertError) {
+             console.error('Query error checking default admin:', insertError.message);
         } else {
-             console.log('Admin user already exists in database.');
+             console.log('Secure admin profile successfully reconstructed and seeded.');
         }
     } catch (err) {
         console.error('Error ensuring default admin:', err.message);
