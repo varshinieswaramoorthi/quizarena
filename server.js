@@ -34,6 +34,11 @@ app.get('/dashboard', (req, res) => {
     res.render('dashboard', { admin: req.session.admin, quizzes: [] });
 });
 
+// Serve the Landing Page specifically on the root trajectory
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
